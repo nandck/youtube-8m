@@ -244,7 +244,7 @@ class LstmModel(models.BaseModel):
 class FrameLevelNeuralNetModel(models.BaseModel):
   """Neural Network model with L2 regularization."""
 
-  def create_model(self, model_input, vocab_size,keep_prob,keep_prob_in, l2_penalty=1e-5, **unused_params):
+  def create_model(self, model_input, vocab_size, **unused_params):
     """Creates a logistic model.
 
     Args:
@@ -258,6 +258,7 @@ class FrameLevelNeuralNetModel(models.BaseModel):
 
     num_frames = tf.cast(tf.expand_dims(num_frames, 1), tf.float32)
     feature_size = model_input.get_shape().as_list()[2]
+    avg_stride = FLAGS.avg_stride
 
     denominators = tf.reshape(
         tf.tile(num_frames, [1, feature_size]), [-1, feature_size])
@@ -266,7 +267,7 @@ class FrameLevelNeuralNetModel(models.BaseModel):
     
     weights_initializer = tf.truncated_normal_initializer(stddev=0.01)
 
-    dropout_rate = FLAGS.dropout_rate
+    keep_prob = FLAGS.keep_prob
 
     layer = slim.fully_connected(
      model_input, 5500, activation_fn=tflearn.prelu,
