@@ -268,7 +268,7 @@ class FrameLevelNeuralNetModel(models.BaseModel):
     keep_prob = FLAGS.keep_prob
 
     layer = slim.fully_connected(
-     model_input, 5500, activation_fn=tflearn.prelu,
+     avg_pooled, 5500, activation_fn=tflearn.prelu,
        weights_regularizer=slim.l2_regularizer(l2_penalty))
     drop = tf.nn.dropout(layer, keep_prob = keep_prob)
     
