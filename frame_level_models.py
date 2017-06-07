@@ -257,13 +257,9 @@ class FrameLevelNeuralNetModel(models.BaseModel):
       model in the 'predictions' key. The dimensions of the tensor are
       batch_size x num_classes."""
 
-    num_frames = tf.cast(tf.expand_dims(num_frames, 1), tf.float32)
+    denominators = tf.cast(tf.reshape(num_frames, [-1, 1]), tf.float32)
     feature_size = model_input.get_shape().as_list()[2]
     avg_stride = FLAGS.avg_stride
-    
-
-    denominators = tf.reshape(
-        tf.tile(num_frames, [1, feature_size]), [-1, feature_size])
     avg_pooled = avg_stride*tf.reduce_sum(model_input[:, :, 0:-1:avg_stride],
                                axis=[1]) / denominators
     
