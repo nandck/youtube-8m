@@ -47,6 +47,11 @@ flags.DEFINE_string("video_level_classifier_model", "MoeModel",
 flags.DEFINE_integer("lstm_cells", 1024, "Number of LSTM cells.")
 flags.DEFINE_integer("lstm_layers", 2, "Number of LSTM layers.")
 
+flags.DEFINE_float("keep_prob", 0.5, "dropoutrate.")
+
+flags.DEFINE_integer("avg_stride", 4, "avg_stride.")
+
+
 class FrameLevelLogisticModel(models.BaseModel):
 
   def create_model(self, model_input, vocab_size, num_frames, **unused_params):
@@ -234,3 +239,39 @@ class LstmModel(models.BaseModel):
         model_input=state[-1].h,
         vocab_size=vocab_size,
         **unused_params)
+
+
+class FrameLevelNeuralNetModel(models.BaseModel):
+  """Neural Network model with L2 regularization."""
+
+  def create_model(self, model_input, vocab_size,keep_prob,keep_prob_in, l2_penalty=1e-5, **unused_params):
+    """Creates a logistic model.
+
+    Args:
+      model_input: 'batch' x 'num_features' matrix of input features.
+      vocab_size: The number of classes in the dataset.
+
+    Returns:
+      A dictionary with a tensor containing the probability predictions of the
+      model in the 'predictions' key. The dimensions of the tensor are
+      batch_size x num_classes."""
+
+    num_frames = tf.cast(tf.expand_dims(num_frames, 1), tf.float32)
+    feature_size = model_input.get_shape().as_list()[2]
+
+    denominators = tf.reshape(
+        tf.tile(num_frames, [1, feature_size]), [-1, feature_size])
+    avg_pooled = avg_stride*tf.reduce_sum(model_input[:, :, 0:-1:avg_stride],
+                               axis=[1]) / denominators
+    
+    weights_initializer = tf.truncated_normal_initializer(stddev=0.01)
+
+    dropout_rate = FLAGS.dropout_rate
+
+    layer = slim.fully_connected(
+     model_input, 25000, activation_fn=tflearn.prelu,
+       weights_regularizer=slim.l2_regularizer(l2_penalty))
+    drop = tf.nn.dropout(layer, keep_prob = keep_prob)     
+    output = slim.fully_connected(
+        drop, vocab_size, activation_fn=tf.nn.sigmoid, weights_regularizer=slim.l2_regularizer(l2_penalty))
+    return {"predictions": output}
