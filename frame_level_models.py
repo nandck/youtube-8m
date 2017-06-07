@@ -244,7 +244,7 @@ class LstmModel(models.BaseModel):
 class FrameLevelNeuralNetModel(models.BaseModel):
   """Neural Network model with L2 regularization."""
 
-  def create_model(self, model_input, vocab_size, l2_penalty=1e-8, **unused_params):
+  def create_model(self, model_input, vocab_size, num_frames, l2_penalty=1e-8, **unused_params):
     """Creates a logistic model.
 
     Args:
