@@ -23,6 +23,7 @@ import model_utils as utils
 
 import tensorflow.contrib.slim as slim
 from tensorflow import flags
+import tflearn
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer("iterations", 30,
