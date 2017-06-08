@@ -262,6 +262,8 @@ class FrameLevelNeuralNetModel(models.BaseModel):
     avg_stride = FLAGS.avg_stride
     avg_pooled = avg_stride*tf.reduce_sum(model_input[:, :, 0:-1:avg_stride],
                                axis=[1]) / denominators
+
+    avg_pooled = tf.nn.l2_normalize(avg_pooled, 1)
     
     weights_initializer = tf.truncated_normal_initializer(stddev=0.01)
 
@@ -274,4 +276,39 @@ class FrameLevelNeuralNetModel(models.BaseModel):
     
     output = slim.fully_connected(
         drop, vocab_size, activation_fn=tf.nn.sigmoid, weights_regularizer=slim.l2_regularizer(l2_penalty))
+    return {"predictions": output}
+
+class FrameLevelNeuralNetModelNormalize(models.BaseModel):
+  """Neural Network model with L2 regularization."""
+
+  def create_model(self, model_input, vocab_size, num_frames, l2_penalty=1e-8, **unused_params):
+    """Creates a logistic model.
+
+    Args:
+      model_input: 'batch' x 'num_features' matrix of input features.
+      vocab_size: The number of classes in the dataset.
+
+    Returns:
+      A dictionary with a tensor containing the probability predictions of the
+      model in the 'predictions' key. The dimensions of the tensor are
+      batch_size x num_classes."""
+
+    denominators = tf.cast(tf.reshape(num_frames, [-1, 1]), tf.float32)
+    feature_size = model_input.get_shape().as_list()[2]
+    avg_stride = FLAGS.avg_stride
+    avg_pooled = avg_stride*tf.reduce_sum(model_input[:, :, 0:-1:avg_stride],
+                               axis=[1]) / denominators
+    
+    weights_initializer = tf.truncated_normal_initializer(stddev=0.01)
+
+    keep_prob = FLAGS.keep_prob
+
+    layer = slim.fully_connected(
+     avg_pooled, 5500, activation_fn=tflearn.prelu,
+       weights_regularizer=slim.l2_regularizer(l2_penalty))
+    drop = tf.nn.dropout(layer, keep_prob = keep_prob)
+    normalized = slim.batch_norm(drop, is_training=True)
+    
+    output = slim.fully_connected(
+        normalized, vocab_size, activation_fn=tf.nn.sigmoid, weights_regularizer=slim.l2_regularizer(l2_penalty))
     return {"predictions": output}
