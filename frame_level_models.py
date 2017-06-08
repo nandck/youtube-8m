@@ -279,7 +279,7 @@ class FrameLevelNeuralNetModel(models.BaseModel):
 
 class SixLayerNN(models.BaseModel):
 
-  def create_model(self, model_input, vocab_size, num_hidden_units=2048, l2_penalty=1e-7, prefix='', **unused_params):
+  def create_model(self, model_input, vocab_size, num_frames, num_hidden_units=2048, l2_penalty=1e-7, prefix='', **unused_params):
     """Creates a logistic model.
     Args:
       model_input: 'batch' x 'num_features' matrix of input features.
