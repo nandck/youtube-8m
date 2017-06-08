@@ -331,6 +331,8 @@ class SixLayerNN(models.BaseModel):
     avg_stride = FLAGS.avg_stride
     avg_pooled = avg_stride*tf.reduce_sum(model_input[:, 0:-1:avg_stride, :],
                                axis=[1]) / denominators
+    avg_pooled = tf.nn.l2_normalize(avg_pooled, 1)
+
 
     # Initialize weights for projection
     w_s = tf.Variable(tf.random_normal(shape=[1152, 2048], stddev=0.01))
