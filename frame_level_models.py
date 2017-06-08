@@ -292,7 +292,7 @@ class SixLayerNN(models.BaseModel):
     denominators = tf.cast(tf.reshape(num_frames, [-1, 1]), tf.float32)
     feature_size = model_input.get_shape().as_list()[2]
     avg_stride = FLAGS.avg_stride
-    avg_pooled = avg_stride*tf.reduce_sum(model_input[:, :, 0:-1:avg_stride],
+    avg_pooled = avg_stride*tf.reduce_sum(model_input[:, 0:-1:avg_stride, :],
                                axis=[1]) / denominators
 
     # Initialize weights for projection
