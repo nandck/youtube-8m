@@ -316,7 +316,7 @@ class FrameLevelNeuralNetModelNormalize(models.BaseModel):
 
 class SixLayerNN(models.BaseModel):
 
-  def create_model(self, model_input, vocab_size, num_frames, num_hidden_units=2048, l2_penalty=1e-7, prefix='', **unused_params):
+  def create_model(self, model_input, vocab_size, num_frames, num_hidden_units=2048, l2_penalty=1e-7, **unused_params):
     """Creates a logistic model.
     Args:
       model_input: 'batch' x 'num_features' matrix of input features.
@@ -342,32 +342,32 @@ class SixLayerNN(models.BaseModel):
         inputs=avg_pooled, units=num_hidden_units, activation=None,
         kernel_initializer =tf.contrib.layers.xavier_initializer(uniform=True, seed=None, dtype=tf.float32),
         bias_initializer=tf.zeros_initializer(),
-        kernel_regularizer=slim.l2_regularizer(l2_penalty), name=prefix+'fc_1')
+        kernel_regularizer=slim.l2_regularizer(l2_penalty))
 
 
     bn1 = tf.contrib.layers.batch_norm(inputs=hidden1, decay=0.99, center=True,
                                 scale=True, epsilon=1e-7, activation_fn=None,
-                                is_training=True, scope=prefix+'bn1')
+                                is_training=True)
 
-    relu1 = tf.nn.relu(hidden1, name=prefix+'relu1' )
+    relu1 = tf.nn.relu(hidden1)
 
-    dropout1 = tf.layers.dropout(inputs=relu1, rate=0.5, name=prefix+"dropout1")
+    dropout1 = tf.layers.dropout(inputs=relu1, rate=0.5)
 
 
     hidden2 = tf.layers.dense(
         inputs=dropout1, units=num_hidden_units, activation=None,
         kernel_initializer =tf.contrib.layers.xavier_initializer(uniform=True, seed=None, dtype=tf.float32),
         bias_initializer=tf.zeros_initializer(),
-        kernel_regularizer=slim.l2_regularizer(l2_penalty), name=prefix+'fc_2')
+        kernel_regularizer=slim.l2_regularizer(l2_penalty))
 
     bn2 = tf.contrib.layers.batch_norm(inputs=hidden2, decay=0.99, center=True,
                                 scale=True, epsilon=1e-7, activation_fn=None,
-                                is_training=True, scope=prefix+'bn2')
+                                is_training=True)
 
 
-    relu2 = tf.nn.relu(hidden2, name=prefix+'relu2' )
+    relu2 = tf.nn.relu(hidden2)
 
-    dropout2 = tf.layers.dropout(inputs=relu2, rate=0.5, name=prefix+"dropout2")
+    dropout2 = tf.layers.dropout(inputs=relu2, rate=0.5)
 
     input_projected_plus_h2 = tf.add(input_projected, dropout2)
 
@@ -376,31 +376,31 @@ class SixLayerNN(models.BaseModel):
         inputs=input_projected_plus_h2, units=num_hidden_units, activation=None,
         kernel_initializer =tf.contrib.layers.xavier_initializer(uniform=True, seed=None, dtype=tf.float32),
         bias_initializer=tf.zeros_initializer(),
-        kernel_regularizer=slim.l2_regularizer(l2_penalty), name=prefix+'fc_3')
+        kernel_regularizer=slim.l2_regularizer(l2_penalty))
 
     bn3 = tf.contrib.layers.batch_norm(inputs=hidden3, decay=0.99, center=True,
                                 scale=True, epsilon=1e-7, activation_fn=None,
-                                is_training=True, scope=prefix+'bn3')
+                                is_training=True)
 
-    relu3 = tf.nn.relu(hidden3, name=prefix+'relu3' )
+    relu3 = tf.nn.relu(hidden3)
 
-    dropout3 = tf.layers.dropout(inputs=relu3, rate=0.5, name=prefix+"dropout3")
+    dropout3 = tf.layers.dropout(inputs=relu3, rate=0.5)
 
 
     hidden4 = tf.layers.dense(
         inputs=dropout3, units=num_hidden_units, activation=None,
         kernel_initializer =tf.contrib.layers.xavier_initializer(uniform=True, seed=None, dtype=tf.float32),
         bias_initializer=tf.zeros_initializer(),
-        kernel_regularizer=slim.l2_regularizer(l2_penalty), name=prefix+'fc_4')
+        kernel_regularizer=slim.l2_regularizer(l2_penalty))
 
     bn4 = tf.contrib.layers.batch_norm(inputs=hidden2, decay=0.99, center=True,
                                 scale=True, epsilon=1e-7, activation_fn=None,
-                                is_training=True, scope=prefix+'bn4')
+                                is_training=True)
 
 
-    relu4 = tf.nn.relu(hidden4, name=prefix+'relu4' )
+    relu4 = tf.nn.relu(hidden4)
 
-    dropout4 = tf.layers.dropout(inputs=relu4, rate=0.5, name=prefix+"dropout4")
+    dropout4 = tf.layers.dropout(inputs=relu4, rate=0.5)
 
     input_projected_plus_h4 = tf.add(input_projected_plus_h2, dropout4)
 
@@ -409,15 +409,15 @@ class SixLayerNN(models.BaseModel):
         inputs=input_projected_plus_h4, units=num_hidden_units, activation=None,
         kernel_initializer =tf.contrib.layers.xavier_initializer(uniform=True, seed=None, dtype=tf.float32),
         bias_initializer=tf.zeros_initializer(),
-        kernel_regularizer=slim.l2_regularizer(l2_penalty), name=prefix+'fc_5')
+        kernel_regularizer=slim.l2_regularizer(l2_penalty))
 
     bn5 = tf.contrib.layers.batch_norm(inputs=hidden5, decay=0.99, center=True,
                                 scale=True, epsilon=1e-7, activation_fn=None,
-                                is_training=True, scope=prefix+'bn5')
+                                is_training=True)
 
-    relu5 = tf.nn.relu(hidden5, name=prefix+'relu5' )
+    relu5 = tf.nn.relu(hidden5)
 
-    dropout5 = tf.layers.dropout(inputs=relu5, rate=0.5, name=prefix+"dropout5")
+    dropout5 = tf.layers.dropout(inputs=relu5, rate=0.5)
 
 
     input_projected_plus_h5 = tf.add(input_projected_plus_h2, dropout3)
@@ -427,7 +427,7 @@ class SixLayerNN(models.BaseModel):
         input_projected_plus_h5, vocab_size, activation_fn=tf.nn.sigmoid,
         weights_initializer =tf.contrib.layers.xavier_initializer(uniform=True, seed=None, dtype=tf.float32),
         biases_initializer=tf.zeros_initializer(),
-        weights_regularizer=slim.l2_regularizer(l2_penalty), scope=prefix+'fc_6')
+        weights_regularizer=slim.l2_regularizer(l2_penalty))
 
 
     weights_norm = tf.add_n(tf.losses.get_regularization_losses())
