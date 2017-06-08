@@ -252,6 +252,7 @@ def build_graph(reader,
   feature_dim = len(model_input_raw.get_shape()) - 1
 
   # model_input = tf.nn.l2_normalize(model_input_raw, feature_dim)
+  model_input = model_input_raw
 
   tower_inputs = tf.split(model_input, num_towers)
   tower_labels = tf.split(labels_batch, num_towers)
